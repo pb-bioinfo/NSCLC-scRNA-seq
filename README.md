@@ -1,7 +1,7 @@
 This repository contains the core computational pipelines and analysis scripts for Ancestry-Enriched Molecular and Cellular Immunosuppressive Features at Single Cell
 Resolution in Early-Stage Non-Small Cell Lung Cancer.
 
-
+```text
 NSCLC-scRNA-seq/
 ├── .gitignore
 ├── README.md
@@ -29,7 +29,7 @@ NSCLC-scRNA-seq/
         ├── monocle2_pseudotime_cd8t.R
         ├── monocle2_pseudotime_cd4t.R
         └── monocle2_pseudotime_epithelial.R
-
+```
 
 The raw and processed single-cell transcriptomic datasets for this study are deposited at [GEO:]. The scripts in this repository are organized by figure panels and are intended for analytical review, parameter checking, and reproducibility auditing. Users wishing to re-run specific pipelines locally will need to download the source data objects and update the setwd() or file paths at the top of each script to match their local storage environment.
 
