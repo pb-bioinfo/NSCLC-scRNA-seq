@@ -35,7 +35,7 @@ The raw and processed single-cell transcriptomic datasets for this study are dep
 
 
 | Script Name | Target Manuscript Panels | Description / Analysis Focus |
-
+| :--- | :--- | :--- |
 | `fig_01_global_characteristics.R` | Figure 1 | Cellular heterogeneity in the TME of Black and White NSCLC patients |
 | `fig_02_epithelial_compartment.R` | Figure 2 | A Hyper-Metabolic, Basal-like Malignant Epithelial Program |
 | `fig_03_stromal_compartment.R` | Figure 3 | Stromal cell profiling (Fibroblasts, Endothelial) |
