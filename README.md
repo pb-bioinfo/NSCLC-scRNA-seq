@@ -42,8 +42,8 @@ The raw and processed single-cell transcriptomic datasets for this study are dep
 | `fig_04_myeloid_compartment.R` | Figure 4 | Myeloid cell profiling (Macrophages, Monocytes, DCs) |
 | `fig_05_t_compartment.R` | Figure 5 | T cell subset heterogeneity and functionality |
 | `fig_06_b_compartment.R` | Figure 6 | B cell and Plasma cell subset |
-| `fig_07_cell_cell_interactions.R` | Figure 7 | Global network communication and interaction strength |
-| `supp_01_global_characteristics.R` | Supplemental Figure 1 | Supplemental QC metrics and global alignment details |
+| `fig_07_cell_cell_interactions.R` | Figure 7 | Global network communication |
+| `supp_01_global_characteristics.R` | Supplemental Figure 1 | Supplemental Global Landscape |
 | `supp_02_epithelial_compartment.R` | Supplemental Figure 2 | A Hyper-Metabolic, Basal-like Malignant Epithelial Program |
 | `supp_03_stromal_compartment.R` | Supplemental Figure 3 | Stromal cell profiling (Fibroblasts, Endothelial) |
 | `supp_04_myeloid_compartment.R` | Supplemental Figure 4 | Myeloid cell profiling (Macrophages, Monocytes, DCs) |
