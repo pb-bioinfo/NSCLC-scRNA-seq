@@ -5,7 +5,7 @@ Resolution in Early-Stage Non-Small Cell Lung Cancer.
 NSCLC-scRNA-seq/
 ├── .gitignore
 ├── README.md
-├── session_info_main_seurat.txt        # Package versions for Seurat/CellChat workflow
+├── session_info_main_seurat.txt         # Package versions for Seurat/CellChat workflow
 ├── session_info_trajectory_monocle2.txt # Package versions for Monocle2 trajectory workflow
 └── scripts/
     ├── seurat_main/
