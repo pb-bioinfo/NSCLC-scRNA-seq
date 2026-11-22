@@ -56,8 +56,6 @@ The raw and processed single-cell transcriptomic datasets for this study are dep
 | `supp_05_t_compartment.R` | Supplemental Figure 5 | T cell subset heterogeneity and functionality |
 | `supp_06_b_compartment.R` | Supplemental Figure 6 | B cell and Plasma cell subset |
 | `supp_07_cell_cell_interactions.R` | Supplemental Figure 7 | Comprehensive CellChat panel outputs |
-
-
 | `Supp_module_scores_GLMM.R` | Supplemental Tables | GLMM analysis for modular scores |
 | `Supp_SPP1_GLMM_sensitivity.R` | Supplemental Tables | GLMM analysis for SPP1 expression |
 | `Supp_TAM_SPP1_subclustering.R` | Supplemental Tables | SGLMM analysis for SPP1 expression in TAM subclusters |
