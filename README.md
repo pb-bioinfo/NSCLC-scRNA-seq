@@ -1,5 +1,5 @@
-This repository contains the core computational pipelines and analysis scripts for Ancestry-Associated Molecular and Cellular Immunoregulatory Features at Single Cell
-Resolution in Early-Stage Non-Small Cell Lung Cancer.
+This repository contains the core computational pipelines and analysis scripts for Ancestry-Associated Molecular and Cellular Immunosuppresive Features at Single Cell
+Resolution in Treatment-Naive Non-Small Cell Lung Cancer.
 
 ```text
 NSCLC-scRNA-seq/
