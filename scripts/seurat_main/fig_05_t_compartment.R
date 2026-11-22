@@ -1,5 +1,7 @@
 library(scales)  # For DiscretePalette function
 library(ggplot2)
+library(ggsignif)
+
 library(qs)
 library(hrbrthemes)
 library(patchwork)
@@ -19,7 +21,7 @@ library(enrichR)
 
 setwd("~/diskD/lung/paneltotal/fig5/")
 
-obj_T <-qread("obj_T.qs")
+obj_T <-qread("~/diskD/lung/paneltotal/fig5/obj_T.qs")
 obj_CD8 <-qread("obj_CD8.qs")
 obj_NK <-qread("obj_NK.qs")
 
@@ -138,34 +140,43 @@ group_df_long <- meta_df %>%
 
 total_types <- as.character(unique(group_df_long$variable))
 
-# -----------------------------
-# 2. One-sided Wilcoxon tests
-# -----------------------------
-comparisons_less <- ggpubr::compare_means(
+
+comparisons_data <- compare_means(
   value ~ Var3,
   group.by = "variable",
-  data = group_df_long,
-  method = "wilcox.test",
-  alternative = "less"
+  data     = group_df_long,
+  method   = "wilcox.test"
 )
 
-comparisons_greater <- ggpubr::compare_means(
-  value ~ Var3,
-  group.by = "variable",
-  data = group_df_long,
-  method = "wilcox.test",
-  alternative = "greater"
-)
+# 2. Remove the excluded cross-comparisons FIRST, then apply BH within each cell type
+comparisons_data <- comparisons_data %>%
+  rowwise() %>%
+  filter(
+    !(list(c(group1, group2)) %in% NOT_comparisons) &
+      !(list(c(group2, group1)) %in% NOT_comparisons)
+  ) %>%
+  ungroup() %>%
+  group_by(variable) %>%
+  mutate(
+    p.adj = p.adjust(p, method = "BH"),
+    p.adj.signif = case_when(
+      p.adj < 0.0001 ~ "****",
+      p.adj < 0.001  ~ "***",
+      p.adj < 0.01   ~ "**",
+      p.adj < 0.05   ~ "*",
+      TRUE           ~ "ns"
+    )
+  ) %>%
+  ungroup()
 
-combined_significant_comparisons <- dplyr::bind_rows(
-  comparisons_greater %>%
-    dplyr::filter(p < 0.05) %>%
-    dplyr::mutate(alternative = "greater"),
-  
-  comparisons_less %>%
-    dplyr::filter(p < 0.05) %>%
-    dplyr::mutate(alternative = "less")
-)
+
+significant_comparisons <- comparisons_data %>%
+  filter(p.adj < 0.05)
+
+# Combine the results
+combined_significant_comparisons <- significant_comparisons
+
+
 
 is_forbidden_comparison <- function(pair) {
   any(vapply(
@@ -175,9 +186,6 @@ is_forbidden_comparison <- function(pair) {
   ))
 }
 
-# -----------------------------
-# 3. Plot one cell type
-# -----------------------------
 plot_one_type <- function(i) {
   
   subdata <- group_df_long %>%
@@ -234,15 +242,13 @@ plot_one_type <- function(i) {
         plot_pair <- list(rev(pair))
         
         onetype_plot <- onetype_plot +
-          ggpubr::stat_compare_means(
-            method = "wilcox.test",
+          ggsignif::geom_signif(
             comparisons = plot_pair,
-            size = 6,
-            label = "p.signif",
-            hide.ns = TRUE,
-            data = subdata,
-            method.args = list(alternative = filtered_comparisons$alternative[g]),
-            label.y = maxx + g * 0.05
+            annotations = filtered_comparisons$p.adj.signif[g],
+            y_position  = maxx + g * 0.05,
+            textsize    = 6,
+            tip_length  = 0.03,
+            data        = subdata
           )
       }
     }

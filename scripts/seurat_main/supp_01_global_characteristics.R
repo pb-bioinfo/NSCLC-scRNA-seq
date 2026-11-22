@@ -1,5 +1,7 @@
 library(scales)  # For DiscretePalette function
 library(ggplot2)
+library(ggsignif)
+
 library(qs)
 library(hrbrthemes)
 library(patchwork)
@@ -189,3 +191,84 @@ combined_plot <- (s1f1 / s1f2) +
 combined_plot
 
 ggsave(filename = "s1f.png", plot = combined_plot, width = 14, height = 7.5, units = "in")
+
+
+
+#####
+
+
+rds2$Grade_v4 <- factor(
+  dplyr::case_when(
+    rds2$Grade_v3 %in% c("G1", "G2", "G1+G2") ~ "G1_G2",
+    rds2$Grade_v3 == "G3"                     ~ "G3",
+    TRUE                                           ~ NA_character_ # Drops Unknown 
+  ),
+  levels = c("G1_G2", "G3")
+)
+
+
+
+rds2@meta.data$histology_v4 <- ifelse(
+  rds2@meta.data$histology_v3 == "LUAD" ,
+  "LUAD",
+  "Non-LUAD"
+)
+
+rds2$smoking_v4 <- recode(rds2$smoking_v2,
+                          "Former smoker" = "Non-Current",
+                          "Never smoker" = "Non-Current",
+                          "Current smoker" = "Current")
+
+
+cov_vars <- c("Race", "histology_v4", "smoking_v2", "sex_v2", "Grade_v3")
+
+patient_meta <- rds2@meta.data %>%
+  dplyr::select(Sample_ID, all_of(cov_vars)) %>%
+  dplyr::distinct(Sample_ID, .keep_all = TRUE) %>%
+  dplyr::mutate(across(all_of(cov_vars), ~ as.character(tidyr::replace_na(as.character(.), "Missing"))))
+
+
+
+strata_counts <- patient_meta %>%
+  dplyr::count(across(all_of(cov_vars)), name = "N_Patients") %>%
+  dplyr::arrange(desc(N_Patients), Race, histology_v4) %>%
+  dplyr::mutate(Stratum_ID = factor(row_number(), levels = row_number()))
+
+
+p_bars <- ggplot(strata_counts, aes(x = Stratum_ID, y = N_Patients, fill = Race)) +
+  geom_col(width = 0.7, color = "black", linewidth = 0.3) +
+  geom_text(aes(label = N_Patients), vjust = -0.4, size = 3.5, fontface = "bold") +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.18))) +
+  scale_fill_manual(values = c("B" = "#e6194b", "W" = "#4363d8", "B_T" = "#e6194b", "W_T" = "#4363d8")) +
+  labs(y = "Number of Patients", title = "Patient Counts Across 5-Way Stratified Subgroups") +
+  theme_minimal(base_size = 11) +
+  theme(
+    axis.title.x = element_blank(),
+    axis.text.x  = element_blank(),
+    panel.grid.major.x = element_blank()
+  )
+
+
+strata_long <- strata_counts %>%
+  tidyr::pivot_longer(cols = all_of(cov_vars), names_to = "Covariate", values_to = "Level") %>%
+  dplyr::mutate(Covariate = factor(Covariate, levels = rev(cov_vars)))
+
+p_matrix <- ggplot(strata_long, aes(x = Stratum_ID, y = Covariate)) +
+  geom_tile(linewidth = 0.4) +
+  geom_text(aes(label = Level), size = 2.8, fontface = "bold") +
+  labs(x = "Unique Patient Clinical Profiles (Strata)", y = NULL) +
+  theme_minimal(base_size = 11) +
+  theme(
+    panel.grid = element_blank(),
+    axis.text.x = element_blank()
+  )
+
+# 5. Combine and save
+
+
+p_combined <- p_bars / p_matrix + plot_layout(heights = c(1.2, 1))
+
+ggsave(filename = "s1g.png", plot = p_combined, width = 14, height = 5, units = "in")
+
+
+

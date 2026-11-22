@@ -116,6 +116,40 @@ ggsave(filename = "f7a.png", plot =f7a, width =7, height = 6.1, units = "in")
 #####
 
 
+pathway_name <- "SPP1"
+
+p_black <- netVisual_heatmap(
+  cellchat_black, 
+  signaling = pathway_name, 
+  color.heatmap = "Reds",
+  title.name = paste(pathway_name, "signaling in Black"))
+
+p_white <- netVisual_heatmap(
+  cellchat_white, 
+  signaling = pathway_name, 
+  color.heatmap = "Reds",
+  title.name = paste(pathway_name, "signaling in White"))
+
+# --- Combine and Save the Plot ---
+# (Remember: These are ComplexHeatmap objects, so we can't use ggsave)
+
+combined_spp1_plot <- p_black + p_white
+
+
+# --- Save to a file ---
+png(filename = "f7b.png", 
+    width = 12, 
+    height = 6.1, 
+    units = "in", 
+    res = 300)
+
+draw(combined_spp1_plot)
+
+dev.off()
+
+
+#####
+
 extract_group_strength <- function(obj, group1, group2) {
   count_mat <- obj@net$count
   weight_mat <- obj@net$weight
@@ -188,7 +222,7 @@ f7b <- ggplot(df_diff_strength_B_T, aes(x = Ratio_Out_Weight, y = Ratio_In_Weigh
     axis.text.x  = element_text(size = 12)
   )
 
-ggsave(filename = "f7b.png", plot = f7b, width = 6, height = 6, units = "in")
+ggsave(filename = "f7c.png", plot = f7b, width = 6, height = 6, units = "in")
 
 
 #####
@@ -248,39 +282,9 @@ f7c <- ggplot(df_diff_strength_mali_cyto, aes(x = Ratio_Out_Weight, y = Ratio_In
 
 
 
-ggsave(filename = "f7c.png", plot = f7c, width = 6, height = 6, units = "in")
+ggsave(filename = "f7d.png", plot = f7c, width = 6, height = 6, units = "in")
 
 
 #####
 
 
-pathway_name <- "SPP1"
-
-p_black <- netVisual_heatmap(
-  cellchat_black, 
-  signaling = pathway_name, 
-  color.heatmap = "Reds",
-  title.name = paste(pathway_name, "signaling in Black"))
-
-p_white <- netVisual_heatmap(
-  cellchat_white, 
-  signaling = pathway_name, 
-  color.heatmap = "Reds",
-  title.name = paste(pathway_name, "signaling in White"))
-
-# --- Combine and Save the Plot ---
-# (Remember: These are ComplexHeatmap objects, so we can't use ggsave)
-
-combined_spp1_plot <- p_black + p_white
-
-
-# --- Save to a file ---
-png(filename = "f7d.png", 
-    width = 12, 
-    height = 6.1, 
-    units = "in", 
-    res = 300)
-
-draw(combined_spp1_plot)
-
-dev.off()

@@ -1,5 +1,7 @@
 library(scales)  # For DiscretePalette function
 library(ggplot2)
+library(ggsignif)
+
 library(qs)
 library(hrbrthemes)
 library(patchwork)
@@ -20,6 +22,7 @@ setwd("~/diskD/lung/paneltotal/fig1/")
 
 
 rds1 <-qread("rds1.qs")
+#rds2 <-qread("rds2.qs")
 
 color.liberal = c('#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe', 
                   '#008080', '#e6beff', '#9a6324', '#fffac8', '#800000', '#aaffc3', '#808000', '#ffd8b1', '#000075', '#808080', '#ffffff', '#000000')
@@ -135,31 +138,42 @@ group_df_long <- meta_df %>%
 total_types <- as.character(unique(group_df_long$variable))
 
 
-comparisons_less <- ggpubr::compare_means(
+
+comparisons_data <- compare_means(
   value ~ Var3,
   group.by = "variable",
-  data = group_df_long,
-  method = "wilcox.test",
-  alternative = "less"
+  data     = group_df_long,
+  method   = "wilcox.test"
 )
 
-comparisons_greater <- ggpubr::compare_means(
-  value ~ Var3,
-  group.by = "variable",
-  data = group_df_long,
-  method = "wilcox.test",
-  alternative = "greater"
-)
+# 2. Remove the excluded cross-comparisons FIRST, then apply BH within each cell type
+comparisons_data <- comparisons_data %>%
+  rowwise() %>%
+  filter(
+    !(list(c(group1, group2)) %in% NOT_comparisons) &
+      !(list(c(group2, group1)) %in% NOT_comparisons)
+  ) %>%
+  ungroup() %>%
+  group_by(variable) %>%
+  mutate(
+    p.adj = p.adjust(p, method = "BH"),
+    p.adj.signif = case_when(
+      p.adj < 0.0001 ~ "****",
+      p.adj < 0.001  ~ "***",
+      p.adj < 0.01   ~ "**",
+      p.adj < 0.05   ~ "*",
+      TRUE           ~ "ns"
+    )
+  ) %>%
+  ungroup()
 
-combined_significant_comparisons <- dplyr::bind_rows(
-  comparisons_greater %>%
-    dplyr::filter(p < 0.05) %>%
-    dplyr::mutate(alternative = "greater"),
-  
-  comparisons_less %>%
-    dplyr::filter(p < 0.05) %>%
-    dplyr::mutate(alternative = "less")
-)
+
+significant_comparisons <- comparisons_data %>%
+  filter(p.adj < 0.05)
+
+# Combine the results
+combined_significant_comparisons <- significant_comparisons
+
 
 is_forbidden_comparison <- function(pair) {
   any(vapply(
@@ -226,15 +240,13 @@ plot_one_type <- function(i) {
         plot_pair <- list(rev(pair))
         
         onetype_plot <- onetype_plot +
-          ggpubr::stat_compare_means(
-            method = "wilcox.test",
+          ggsignif::geom_signif(
             comparisons = plot_pair,
-            size = 6,
-            label = "p.signif",
-            hide.ns = TRUE,
-            data = subdata,
-            method.args = list(alternative = filtered_comparisons$alternative[g]),
-            label.y = maxx + g * 0.05
+            annotations = filtered_comparisons$p.adj.signif[g],
+            y_position  = maxx + g * 0.05,
+            textsize    = 6,
+            tip_length  = 0.03,
+            data        = subdata
           )
       }
     }
@@ -270,7 +282,7 @@ f1c <- patchwork::wrap_plots(
   )
 
 
-
+f1c
 
 ggsave(filename = "f1c.png", plot = f1c, width = 4.5, height = 6, units = "in")
 

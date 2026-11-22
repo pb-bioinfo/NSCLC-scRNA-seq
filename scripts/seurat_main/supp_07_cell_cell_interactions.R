@@ -1,5 +1,6 @@
 library(scales)  # For DiscretePalette function
 library(ggplot2)
+library(ggsignif)
 library(qs)
 library(hrbrthemes)
 library(patchwork)
@@ -228,6 +229,203 @@ ggsave(filename = "s7e.png", plot = s7e, width = 9, height = 9, units = "in")
 
 
 
+#####
+
+
+
+cd8_t_cells <- c(36:39)
+#Mono-macs \u2192 CD8 T Cells
+sources.use = 23
+targets.use = cd8_t_cells
+
+
+plot_max2 <- netVisual_bubble(cellchat,
+                              sources.use = sources.use,
+                              targets.use = targets.use,
+                              comparison = c(1, 2),
+                              max.dataset = 2,
+                              angle.x = 45,
+                              remove.isolate = TRUE)+
+  labs(title = "Higher in White")
+
+
+plot_max1 <- netVisual_bubble(cellchat,
+                              sources.use = sources.use,
+                              targets.use = targets.use,
+                              comparison = c(1, 2),
+                              max.dataset = 1,
+                              angle.x = 45,
+                              remove.isolate = TRUE)+
+  labs(title = "Higher in Black")
+
+s7j <- plot_max1 + plot_max2 +
+  plot_annotation(
+    title = "Mono-macs \u2192 CD8 T Cells",
+    theme = theme(
+      plot.title = element_text(size = 15, face = "bold", hjust = 0.5)
+    )
+  )
+
+ggsave(filename = "s7f.png", plot = s7j, width = 9, height = 7, units = "in")
+
+#####
+
+
+
+
+cd8_t_cells <- c(36:39)
+#Mono-macs \u2192 CD8 T Cells
+sources.use = 25
+targets.use = cd8_t_cells
+
+
+plot_max2 <- netVisual_bubble(cellchat,
+                              sources.use = sources.use,
+                              targets.use = targets.use,
+                              comparison = c(1, 2),
+                              max.dataset = 2,
+                              angle.x = 45,
+                              remove.isolate = TRUE)+
+  labs(title = "Higher in White")
+
+
+plot_max1 <- netVisual_bubble(cellchat,
+                              sources.use = sources.use,
+                              targets.use = targets.use,
+                              comparison = c(1, 2),
+                              max.dataset = 1,
+                              angle.x = 45,
+                              remove.isolate = TRUE)+
+  labs(title = "Higher in Black")
+
+s7k <- plot_max1 + plot_max2 +
+  plot_annotation(
+    title = "TAMs \u2192 CD8 T Cells",
+    theme = theme(
+      plot.title = element_text(size = 15, face = "bold", hjust = 0.5)
+    )
+  )
+
+ggsave(filename = "s7g.png", plot = s7k, width = 9, height = 7, units = "in")
+
+
+
+
+
+#####
+
+
+cd8_t_cells <- c(36:39)
+sources.use = 24
+targets.use = cd8_t_cells
+
+
+plot_max2 <- netVisual_bubble(cellchat,
+                              sources.use = sources.use,
+                              targets.use = targets.use,
+                              comparison = c(1, 2),
+                              max.dataset = 2,
+                              angle.x = 45,
+                              remove.isolate = TRUE)+
+  labs(title = "Higher in White")
+
+
+plot_max1 <- netVisual_bubble(cellchat,
+                              sources.use = sources.use,
+                              targets.use = targets.use,
+                              comparison = c(1, 2),
+                              max.dataset = 1,
+                              angle.x = 45,
+                              remove.isolate = TRUE)+
+  labs(title = "Higher in Black")
+
+s7i <- plot_max1 + plot_max2 +
+  plot_annotation(
+    title = "Monocytes \u2192 CD8 T Cells",
+    theme = theme(
+      plot.title = element_text(size = 15, face = "bold", hjust = 0.5)
+    )
+  )
+
+ggsave(filename = "s7h.png", plot = s7i, width = 9, height = 7, units = "in")
+
+
+
+
+#####
+
+
+#Mono-macs \u2192 CD4 T Cells
+
+cd4_t_cells <- c(29:35)
+
+sources.use = 23
+targets.use = cd4_t_cells
+
+
+
+plot_max2 <- netVisual_bubble(cellchat,
+                              sources.use = sources.use,
+                              targets.use = targets.use,
+                              comparison = c(1, 2),
+                              max.dataset = 2,
+                              angle.x = 45,
+                              remove.isolate = TRUE)+
+  labs(title = "Higher in White")
+
+
+plot_max1 <- netVisual_bubble(cellchat,
+                              sources.use = sources.use,
+                              targets.use = targets.use,
+                              comparison = c(1, 2),
+                              max.dataset = 1,
+                              angle.x = 45,
+                              remove.isolate = TRUE)+
+  labs(title = "Higher in Black")
+
+s7h <- plot_max1 + plot_max2 +
+  plot_annotation(
+    title = "Mono-macs \u2192 CD4 T Cells",
+    theme = theme(
+      plot.title = element_text(size = 15, face = "bold", hjust = 0.5)
+    )
+  )
+
+ggsave(filename = "s7i.png", plot = s7h, width = 12, height = 9, units = "in")
+
+
+
+
+pathway_name <- "SPP1"
+
+p_black <- netVisual_heatmap(
+  cellchat_black, 
+  signaling = pathway_name, 
+  color.heatmap = "Reds",
+  title.name = paste(pathway_name, "signaling in Black"))
+
+p_white <- netVisual_heatmap(
+  cellchat_white, 
+  signaling = pathway_name, 
+  color.heatmap = "Reds",
+  title.name = paste(pathway_name, "signaling in White"))
+
+# --- Combine and Save the Plot ---
+# (Remember: These are ComplexHeatmap objects, so we can't use ggsave)
+
+combined_spp1_plot <- p_black + p_white
+
+
+# --- Save to a file ---
+png(filename = "s7j.png", 
+    width = 12, 
+    height = 6.1, 
+    units = "in", 
+    res = 300)
+
+draw(combined_spp1_plot)
+
+dev.off()
 
 ##### 
 
@@ -299,228 +497,13 @@ s7f <- ggplot(df_diff_targeted, aes(x = Ratio_Out_Count, y = Ratio_In_Count)) +
     axis.text.x  = element_text(size = 12)
   )
 
-ggsave(filename = "s7f.png", plot = s7f, width = 9, height = 9, units = "in")
+ggsave(filename = "s7k.png", plot = s7f, width = 9, height = 9, units = "in")
 
 
 
 
 
-#####
 
-mali_cells <- c(levels(cellchat@idents[[1]])[14])
-cd8_cells <- levels(cellchat@idents[[1]])[36:39] 
-
-nk_cells <- levels(cellchat@idents[[1]])[26:28] 
-cyto_cells <- c(cd8_cells,nk_cells)
-
-
-
-
-df_black_targeted_cyto_mali <- extract_group_crosstalk(cellchat_black, cyto_cells, mali_cells)
-df_white_targeted_cyto_mali <- extract_group_crosstalk(cellchat_white, cyto_cells, mali_cells)
-
-df_diff_targeted_cyto_mali <- merge(df_black_targeted_cyto_mali, df_white_targeted_cyto_mali, by = "labels", suffixes = c("_Black", "_White"))
-
-df_diff_targeted_cyto_mali <- df_diff_targeted_cyto_mali %>%
-  mutate(
-    Delta_Out_Count = Out_Count_Black - Out_Count_White,
-    Delta_In_Count  = In_Count_Black - In_Count_White,
-    Avg_Strength    = (Total_Strength_Black + Total_Strength_White) / 2
-  )
-
-df_diff_targeted_cyto_mali <- df_diff_targeted_cyto_mali %>%
-  mutate(
-    Ratio_Out_Count = log2(Out_Count_Black / Out_Count_White),
-    Ratio_In_Count  = log2(In_Count_Black / In_Count_White),
-  )
-
-
-
-s7g <- ggplot(df_diff_targeted_cyto_mali, aes(x = Ratio_Out_Count, y = Ratio_In_Count)) +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "gray60") +
-  geom_vline(xintercept = 0, linetype = "dashed", color = "gray60") +
-  
-  geom_point(aes(size = Avg_Strength, color = labels), alpha = 0.8) +  
-  theme_bw() +labs(
-    title = "Ratio Interaction Counts: B & T Only",
-    x = "Log2 FC of Outgoing Counts (Black/White)",
-    y = "Log2 FC of Incoming Counts (Black/White)",
-    size = "Avg Interaction\nStrength",
-    color = "Cell Type"
-  )  +
-  theme(
-    plot.title = element_text(size = 14, face = "bold", hjust = 0.5),
-    axis.text.y  = element_text(size = 12),
-    axis.title.y = element_text(size = 12),
-    axis.title.x = element_text(size = 12),
-    axis.text.x  = element_text(size = 12)
-  )
-
-ggsave(filename = "s7g.png", plot = s7g, width = 7, height = 9, units = "in")
-
-
-
-
-
-#####
-
-
-#Mono-macs \u2192 CD4 T Cells
-
-cd4_t_cells <- c(29:35)
-
-sources.use = 23
-targets.use = cd4_t_cells
-
-
-
-plot_max2 <- netVisual_bubble(cellchat,
-                              sources.use = sources.use,
-                              targets.use = targets.use,
-                              comparison = c(1, 2),
-                              max.dataset = 2,
-                              angle.x = 45,
-                              remove.isolate = TRUE)+
-  labs(title = "Higher in White")
-
-
-plot_max1 <- netVisual_bubble(cellchat,
-                              sources.use = sources.use,
-                              targets.use = targets.use,
-                              comparison = c(1, 2),
-                              max.dataset = 1,
-                              angle.x = 45,
-                              remove.isolate = TRUE)+
-  labs(title = "Higher in Black")
-
-s7h <- plot_max1 + plot_max2 +
-  plot_annotation(
-    title = "Mono-macs \u2192 CD4 T Cells",
-    theme = theme(
-      plot.title = element_text(size = 15, face = "bold", hjust = 0.5)
-    )
-  )
-
-ggsave(filename = "s7h.png", plot = s7h, width = 12, height = 9, units = "in")
-
-
-
-#####
-
-
-cd8_t_cells <- c(36:39)
-sources.use = 24
-targets.use = cd8_t_cells
-
-
-plot_max2 <- netVisual_bubble(cellchat,
-                              sources.use = sources.use,
-                              targets.use = targets.use,
-                              comparison = c(1, 2),
-                              max.dataset = 2,
-                              angle.x = 45,
-                              remove.isolate = TRUE)+
-  labs(title = "Higher in White")
-
-
-plot_max1 <- netVisual_bubble(cellchat,
-                              sources.use = sources.use,
-                              targets.use = targets.use,
-                              comparison = c(1, 2),
-                              max.dataset = 1,
-                              angle.x = 45,
-                              remove.isolate = TRUE)+
-  labs(title = "Higher in Black")
-
-s7i <- plot_max1 + plot_max2 +
-  plot_annotation(
-    title = "Monocytes \u2192 CD8 T Cells",
-    theme = theme(
-      plot.title = element_text(size = 15, face = "bold", hjust = 0.5)
-    )
-  )
-
-ggsave(filename = "s7i.png", plot = s7i, width = 9, height = 7, units = "in")
-
-
-#####
-
-
-
-cd8_t_cells <- c(36:39)
-#Mono-macs \u2192 CD8 T Cells
-sources.use = 23
-targets.use = cd8_t_cells
-
-
-plot_max2 <- netVisual_bubble(cellchat,
-                              sources.use = sources.use,
-                              targets.use = targets.use,
-                              comparison = c(1, 2),
-                              max.dataset = 2,
-                              angle.x = 45,
-                              remove.isolate = TRUE)+
-  labs(title = "Higher in White")
-
-
-plot_max1 <- netVisual_bubble(cellchat,
-                              sources.use = sources.use,
-                              targets.use = targets.use,
-                              comparison = c(1, 2),
-                              max.dataset = 1,
-                              angle.x = 45,
-                              remove.isolate = TRUE)+
-  labs(title = "Higher in Black")
-
-s7j <- plot_max1 + plot_max2 +
-  plot_annotation(
-    title = "Mono-macs \u2192 CD8 T Cells",
-    theme = theme(
-      plot.title = element_text(size = 15, face = "bold", hjust = 0.5)
-    )
-  )
-
-ggsave(filename = "s7j.png", plot = s7j, width = 9, height = 7, units = "in")
-
-#####
-
-
-
-
-cd8_t_cells <- c(36:39)
-#Mono-macs \u2192 CD8 T Cells
-sources.use = 25
-targets.use = cd8_t_cells
-
-
-plot_max2 <- netVisual_bubble(cellchat,
-                              sources.use = sources.use,
-                              targets.use = targets.use,
-                              comparison = c(1, 2),
-                              max.dataset = 2,
-                              angle.x = 45,
-                              remove.isolate = TRUE)+
-  labs(title = "Higher in White")
-
-
-plot_max1 <- netVisual_bubble(cellchat,
-                              sources.use = sources.use,
-                              targets.use = targets.use,
-                              comparison = c(1, 2),
-                              max.dataset = 1,
-                              angle.x = 45,
-                              remove.isolate = TRUE)+
-  labs(title = "Higher in Black")
-
-s7k <- plot_max1 + plot_max2 +
-  plot_annotation(
-    title = "TAMs \u2192 CD8 T Cells",
-    theme = theme(
-      plot.title = element_text(size = 15, face = "bold", hjust = 0.5)
-    )
-  )
-
-ggsave(filename = "s7k.png", plot = s7k, width = 9, height = 7, units = "in")
 
 
 
@@ -651,6 +634,63 @@ ggsave(filename = "s7o.png", plot = s7o, width = 4.5, height = 3, units = "in",d
 
 
 
+
+#####
+
+mali_cells <- c(levels(cellchat@idents[[1]])[14])
+cd8_cells <- levels(cellchat@idents[[1]])[36:39] 
+
+nk_cells <- levels(cellchat@idents[[1]])[26:28] 
+cyto_cells <- c(cd8_cells,nk_cells)
+
+
+
+
+df_black_targeted_cyto_mali <- extract_group_crosstalk(cellchat_black, cyto_cells, mali_cells)
+df_white_targeted_cyto_mali <- extract_group_crosstalk(cellchat_white, cyto_cells, mali_cells)
+
+df_diff_targeted_cyto_mali <- merge(df_black_targeted_cyto_mali, df_white_targeted_cyto_mali, by = "labels", suffixes = c("_Black", "_White"))
+
+df_diff_targeted_cyto_mali <- df_diff_targeted_cyto_mali %>%
+  mutate(
+    Delta_Out_Count = Out_Count_Black - Out_Count_White,
+    Delta_In_Count  = In_Count_Black - In_Count_White,
+    Avg_Strength    = (Total_Strength_Black + Total_Strength_White) / 2
+  )
+
+df_diff_targeted_cyto_mali <- df_diff_targeted_cyto_mali %>%
+  mutate(
+    Ratio_Out_Count = log2(Out_Count_Black / Out_Count_White),
+    Ratio_In_Count  = log2(In_Count_Black / In_Count_White),
+  )
+
+
+
+s7g <- ggplot(df_diff_targeted_cyto_mali, aes(x = Ratio_Out_Count, y = Ratio_In_Count)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray60") +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "gray60") +
+  
+  geom_point(aes(size = Avg_Strength, color = labels), alpha = 0.8) +  
+  theme_bw() +labs(
+    title = "Ratio Interaction Counts: B & T Only",
+    x = "Log2 FC of Outgoing Counts (Black/White)",
+    y = "Log2 FC of Incoming Counts (Black/White)",
+    size = "Avg Interaction\nStrength",
+    color = "Cell Type"
+  )  +
+  theme(
+    plot.title = element_text(size = 14, face = "bold", hjust = 0.5),
+    axis.text.y  = element_text(size = 12),
+    axis.title.y = element_text(size = 12),
+    axis.title.x = element_text(size = 12),
+    axis.text.x  = element_text(size = 12)
+  )
+
+ggsave(filename = "s7p.png", plot = s7g, width = 7, height = 9, units = "in")
+
+
+
+
 #####
 
 cd8_other_t_cells <- c(36,37,38,39,41)
@@ -689,7 +729,7 @@ s7p <- plot_max1 + plot_max2 +
     )
   )
 
-ggsave(filename = "s7p.png", plot = s7p, width = 10, height = 9, units = "in")
+ggsave(filename = "s7q.png", plot = s7p, width = 10, height = 9, units = "in")
 
 
 #####
@@ -726,41 +766,8 @@ s7q <- plot_max1 + plot_max2 +
     )
   )
 
-ggsave(filename = "s7q.png", plot = s7q, width = 10, height = 9, units = "in")
-
-#####
+ggsave(filename = "s7r.png", plot = s7q, width = 10, height = 9, units = "in")
 
 
 
-
-pathway_name <- "SPP1"
-
-p_black <- netVisual_heatmap(
-  cellchat_black, 
-  signaling = pathway_name, 
-  color.heatmap = "Reds",
-  title.name = paste(pathway_name, "signaling in Black"))
-
-p_white <- netVisual_heatmap(
-  cellchat_white, 
-  signaling = pathway_name, 
-  color.heatmap = "Reds",
-  title.name = paste(pathway_name, "signaling in White"))
-
-# --- Combine and Save the Plot ---
-# (Remember: These are ComplexHeatmap objects, so we can't use ggsave)
-
-combined_spp1_plot <- p_black + p_white
-
-
-# --- Save to a file ---
-png(filename = "s7r.png", 
-    width = 12, 
-    height = 6.1, 
-    units = "in", 
-    res = 300)
-
-draw(combined_spp1_plot)
-
-dev.off()
 

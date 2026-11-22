@@ -1,5 +1,7 @@
 library(scales)  # For DiscretePalette function
 library(ggplot2)
+library(ggsignif)
+
 library(qs)
 library(hrbrthemes)
 library(patchwork)
@@ -290,39 +292,45 @@ group_df_long <- meta_df %>%
 
 total_types <- as.character(unique(group_df_long$variable))
 
-# -----------------------------
-# 2. One-sided Wilcoxon tests
-# -----------------------------
-comparisons_less <- ggpubr::compare_means(
+
+comparisons_data <- compare_means(
   value ~ Var3,
   group.by = "variable",
-  data = group_df_long,
-  method = "wilcox.test",
-  alternative = "less"
+  data     = group_df_long,
+  method   = "wilcox.test"
 )
 
-comparisons_greater <- ggpubr::compare_means(
-  value ~ Var3,
-  group.by = "variable",
-  data = group_df_long,
-  method = "wilcox.test",
-  alternative = "greater"
-)
+# 2. Remove the excluded cross-comparisons FIRST, then apply BH within each cell type
+comparisons_data <- comparisons_data %>%
+  rowwise() %>%
+  filter(
+    !(list(c(group1, group2)) %in% NOT_comparisons) &
+      !(list(c(group2, group1)) %in% NOT_comparisons)
+  ) %>%
+  ungroup() %>%
+  group_by(variable) %>%
+  mutate(
+    p.adj = p.adjust(p, method = "BH"),
+    p.adj.signif = case_when(
+      p.adj < 0.0001 ~ "****",
+      p.adj < 0.001  ~ "***",
+      p.adj < 0.01   ~ "**",
+      p.adj < 0.05   ~ "*",
+      TRUE           ~ "ns"
+    )
+  ) %>%
+  ungroup()
 
-combined_significant_comparisons <- dplyr::bind_rows(
-  comparisons_greater %>%
-    dplyr::filter(p < 0.05) %>%
-    dplyr::mutate(alternative = "greater"),
-  
-  comparisons_less %>%
-    dplyr::filter(p < 0.05) %>%
-    dplyr::mutate(alternative = "less")
-)
+
+significant_comparisons <- comparisons_data %>%
+  filter(p.adj < 0.05)
+
+# Combine the results
+combined_significant_comparisons <- significant_comparisons
 
 
-# -----------------------------
-# 3. Plot one cell type
-# -----------------------------
+
+
 plot_one_type <- function(i) {
   
   subdata <- group_df_long %>%
@@ -373,17 +381,15 @@ plot_one_type <- function(i) {
       
       
       plot_pair <- list(rev(pair))
-      
+    
       onetype_plot <- onetype_plot +
-        ggpubr::stat_compare_means(
-          method = "wilcox.test",
+        ggsignif::geom_signif(
           comparisons = plot_pair,
-          size = 6,
-          label = "p.signif",
-          hide.ns = TRUE,
-          data = subdata,
-          method.args = list(alternative = filtered_comparisons$alternative[g]),
-          label.y = maxx + g * 0.05
+          annotations = filtered_comparisons$p.adj.signif[g],
+          y_position  = maxx + g * 0.05,
+          textsize    = 6,
+          tip_length  = 0.03,
+          data        = subdata
         )
       
     }
@@ -395,9 +401,7 @@ plot_one_type <- function(i) {
   return(onetype_plot)
 }
 
-# -----------------------------
-# 4. Generate plots and shared legend
-# -----------------------------
+
 plot_list <- lapply(seq_along(total_types), plot_one_type)
 
 legend_plot <- plot_list[[1]] +
@@ -638,7 +642,7 @@ obj_Treg <-qread("obj_Treg.qs")
 
 Idents(obj_Treg)<- "State"
 
-s5q <- DEenrichRPlot(
+s5t <- DEenrichRPlot(
   obj_Treg,
   ident.1 = "4",
   ident.2 = "5",
@@ -653,14 +657,14 @@ s5q <- DEenrichRPlot(
   return.gene.list = FALSE
 )
 
-s5q[[1]] <- s5q[[1]]  + 
+s5t[[1]] <- s5t[[1]]  + 
   labs(title =paste0("State 4 ","Treg"))+
   geom_hline(yintercept = 1.3, linetype = "dashed", color = "yellow",linewidth = 0.85) +theme(
     plot.title  = element_text(size = 14)  
   )+  theme(axis.text.x = element_text(size = 12),axis.title.x  =element_text(size=12))
 
 
-s5q[[2]] <- s5q[[2]]  + 
+s5t[[2]] <- s5t[[2]]  + 
   labs(title =paste0("State 5 ","Treg"))+
   geom_hline(yintercept = 1.3, linetype = "dashed", color = "yellow",linewidth = 0.85) +theme(
     plot.title  = element_text(size = 14)  
@@ -668,7 +672,7 @@ s5q[[2]] <- s5q[[2]]  +
 
 
 
-ggsave(filename = "s5q.png", plot = s5q, width = 6.5, height = 3, units = "in")
+ggsave(filename = "s5t.png", plot = s5t, width = 6.5, height = 3, units = "in")
 
 
 
@@ -677,10 +681,10 @@ ggsave(filename = "s5q.png", plot = s5q, width = 6.5, height = 3, units = "in")
 
 
 
-s5s = FeaturePlot(obj_NK,features = "FCGR3A", reduction = "umap.NK.rpca",cols = c('grey','red'))+
+s5v = FeaturePlot(obj_NK,features = "FCGR3A", reduction = "umap.NK.rpca",cols = c('grey','red'))+
   labs(y = "UMAP_2", x = "UMAP_1",max.cutoff = 4.6)
 
-ggsave(filename = "s5s.png", plot = s5s, width = 3.5, height = 3, units = "in")
+ggsave(filename = "s5v.png", plot = s5v, width = 3.5, height = 3, units = "in")
 
 
 #####
@@ -696,7 +700,7 @@ sce_score <- AddModuleScore(
 
 metadata2<- sce_score@meta.data[,c("Race_Type","NK_subtype","cytotoxic_score1")]
 
-s5t<- ggplot(metadata2, aes(x = cytotoxic_score1, colour = NK_subtype)) +scale_color_manual(values = color.liberal)+
+s5w<- ggplot(metadata2, aes(x = cytotoxic_score1, colour = NK_subtype)) +scale_color_manual(values = color.liberal)+
   stat_ecdf(geom = "step", size = 0.5) + # Use stat_ecdf with geom = "step"
   labs(
     title = "",
@@ -709,7 +713,7 @@ s5t<- ggplot(metadata2, aes(x = cytotoxic_score1, colour = NK_subtype)) +scale_c
         axis.text.y = element_text(size = 10))+
   theme(axis.line = element_line(colour = "black"))
 
-ggsave(filename = "s5t.png", plot = s5t, width = 5.4, height = 3, units = "in")
+ggsave(filename = "s5w.png", plot = s5w, width = 5.4, height = 3, units = "in")
 
 
 
