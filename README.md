@@ -1,4 +1,4 @@
-This repository contains the core computational pipelines and analysis scripts for Ancestry-Enriched Molecular and Cellular Immunosuppressive Features at Single Cell
+This repository contains the core computational pipelines and analysis scripts for Ancestry-Associated Molecular and Cellular Immunoregulatory Features at Single Cell
 Resolution in Early-Stage Non-Small Cell Lung Cancer.
 
 ```text
@@ -7,6 +7,7 @@ NSCLC-scRNA-seq/
 ├── README.md
 ├── session_info_main_seurat.txt         # Package versions for Seurat/CellChat workflow
 ├── session_info_trajectory_monocle2.txt # Package versions for Monocle2 trajectory workflow
+├── session_info_supp_glmmtmb.txt        # Package versions for general linear mixed model workflow
 └── scripts/
     ├── seurat_main/
     │   ├── fig_01_global_characteristics.R
@@ -23,6 +24,11 @@ NSCLC-scRNA-seq/
     │   ├── supp_05_t_compartment.R
     │   ├── supp_06_b_compartment.R
     │   └── supp_07_cell_cell_interactions.R
+    │
+    ├── glmm_patient_level/
+    │   ├── Supp_module_scores_GLMM.R
+    │   ├── Supp_SPP1_GLMM_sensitivity.R
+    │   ├── Supp_TAM_SPP1_subclustering.R
     │
     └── monocle2_trajectory/
         ├── monocle2_pseudotime_myeloid.R
@@ -52,6 +58,13 @@ The raw and processed single-cell transcriptomic datasets for this study are dep
 | `supp_07_cell_cell_interactions.R` | Supplemental Figure 7 | Comprehensive CellChat panel outputs |
 
 
+| `Supp_module_scores_GLMM.R` | Supplemental Tables | GLMM analysis for modular scores |
+| `Supp_SPP1_GLMM_sensitivity.R` | Supplemental Tables | GLMM analysis for SPP1 expression |
+| `Supp_TAM_SPP1_subclustering.R` | Supplemental Tables | SGLMM analysis for SPP1 expression in TAM subclusters |
+
+
 Contact: For questions regarding the code or data access, please contact [Pengbo Zhang] at [pengbo.zhang@advocatehealth.org].
+
+The repository was updated during peer review to use two-sided Wilcoxon rank-sum tests with Benjamini–Hochberg FDR correction and to include the supplementary GLMM analyses for SPP1 expression and modular scores.
 
 Citation: [...]
